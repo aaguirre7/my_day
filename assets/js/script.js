@@ -1,6 +1,19 @@
-// create the timeblocks in HTML dynamictly 
-$(document).ready(function(){
-    for (var i = 9; i <= 17; i ++){
+$(document).ready(function() {
+
+    // Create html of the timeblocks
+    
+    for (var i = 9; i <= 17; i++){
+        //$('.container').append(`<div class="row time-block" data-time="${i}"> 
+        //<div class="col-sm col-md-2 hour"> 
+          //  <p>${i}00hrs</p> 
+        //</div> 
+        //<div class="col-sm col-md-8 d-flex description"> 
+           // <textarea></textarea> 
+        //</div> 
+        //<div class="col-sm col-md-2 saveBtn"> 
+          //  <i class="far fa-save fa-2x"></i> 
+        //</div> 
+        //</div>`);
         if (i <= 11){
             var t1 = i + ":00 "
             $('.container').append(`<div class="row time-block" data-time="${i}">
@@ -40,13 +53,14 @@ $(document).ready(function(){
                         </div></>
                 </div>`);
             }
-        }
-    let timeTrackObject ={};
-// Checks for loca storage, if missing creates an array.
-        if (localStorage.getItem('timeTrackObject')){
+    }
+    
+    
+    let timeTrackObject = {};
+        //Checks if local storage exists, if it doesn't load preset data to array.<fixed>
+        if (localStorage.getItem('timeTrackObject')) {
             timeTrackObject = JSON.parse(localStorage.getItem('timeTrackObject'));
-        }
-        else{
+        }else{
             timeTrackObject = {
                 '9': { time: "9", value: ""},
                 '10':{ time: "10", value: ""},
@@ -57,42 +71,55 @@ $(document).ready(function(){
                 '15':{ time: "15", value: ""},
                 '16':{ time: "16", value: ""},
                 '17':{ time: "17", value: ""}
-            }; 
+            };
         }
-// Load data from created timeblocks
+    
+    //Load data loaded from code under comment 1 into page <fixed>
     $(".time-block").each(function(){
-        $(this).find(".description textarea").val(timeTrackObject[$(this).attr("Data-time")].vale);
-
+        $(this).find(".description textarea").val(timeTrackObject[$(this).attr("data-time")].value);
     });
-// SHows today's date
+    
+    // moment.js to show what day it is.
     let dateString = moment().format('dddd') + ", " +moment().format("MMM Do YY");
-        $("#currentDay").html(dateString.substring(0, dateString.length - 5) + "th");
-// changes color according to time of the day
+    $("#currentDay").html(dateString.substring(0, dateString.length - 5) + "th");
+    
+    //checks the hour of the current day to the hour for HTML data-element to decide it's background color.
     const m = moment();
-    $.each($(".time-block"), function(index,value){
+    $.each($(".time-block"), function(index, value){
         let dateHour = $(value).attr("data-time");
-        if (Number(dateHour)=== m.hour()){
+        if (Number(dateHour) === m.hour()) {
             $(this).find("textarea").addClass('present');
-        }else if(Number(dateHour)< m.hour()){
+        } else if(Number(dateHour) < m.hour()){
             $(this).find("textarea").addClass('past');
-        }else {
-            $(this).find("textarea").addClass("future");
-        }
+        } else {
+            $(this).find("textarea").addClass('future');
+        } 
     });
-//saves to local storage day's activity
-    $("body").on('click',".saveBtn", function(e){
-    //Gets varialbles containing DATA
-        var hour = $(this).closest(".time-block").attr("data-time");
-        var textValue = $(this).closest(".time-block").find("description textarea").val();
-        timeTrackObject[hour].value = textValue;
-    //sends collected data to Local storage
-        localStorage.setItem('timeTrackObject', JSON.stringify(timeTrackObject));
+    
+    //When a user clicks the save button data is saved to the objects 
+    //and to local storage changing the data loaded in new sessions.
+    $("body").on('click', ".saveBtn", function(e){
+    
+    //Sets variables for calling data
+    let hour = $(this).closest(".time-block").attr("data-time");
+    let textValue = $(this).closest(".time-block").find(".description textarea").val();
+    //let day = moment().format("MMM Do YY").substring(0,5);
+    
+    // Value is overrided by for the objects value
+    timeTrackObject[hour].value = textValue;
+    
+    //Sends value to local storage for later use.
+    localStorage.setItem('timeTrackObject', JSON.stringify(timeTrackObject));
+    
     });
-// clear all button
+    
+    // Button to clear all data.
+    
     $("body").on('click', "#clearData", function(e){
         localStorage.setItem('timeTrackObject', "");
         $(".time-block").each(function(){
             $(this).find(".description textarea").val('');
         });
     });
-})
+    
+});
